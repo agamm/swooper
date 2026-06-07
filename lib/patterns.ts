@@ -32,9 +32,23 @@ export function cartesianProduct<T>(...arrays: T[][]): T[][] {
   )
 }
 
+// Upper bound on the number of domains a single query can expand to. Guards
+// against a combinatorial blow-up (e.g. 4 patterns x 50 options = 6.25M strings)
+// that would otherwise be built entirely in memory.
+export const MAX_PERMUTATIONS = 5000
+
+// Trim each pattern's option list so the cartesian product stays within `limit`.
+// Caps every list to floor(limit^(1/n)) elements, which leaves realistic inputs
+// (a handful of patterns with ~10-20 options each) untouched.
+function capOptionArrays(optionArrays: string[][], limit: number): string[][] {
+  const perPatternCap = Math.max(1, Math.floor(Math.pow(limit, 1 / optionArrays.length)))
+  return optionArrays.map((opts) => (opts.length > perPatternCap ? opts.slice(0, perPatternCap) : opts))
+}
+
 export function generatePermutations(
   query: string,
   options: Record<string, string[]>, // options by index: {"0": ["opt1", "opt2"], "1": ["opt3", "opt4"]}
+  limit: number = MAX_PERMUTATIONS,
 ): string[] {
   // Extract all patterns from query in order
   const patterns = extractPatterns(query)
@@ -54,7 +68,7 @@ export function generatePermutations(
     optionArrays.push(opts)
   }
 
-  const combinations = cartesianProduct(...optionArrays)
+  const combinations = cartesianProduct(...capOptionArrays(optionArrays, limit))
 
   return combinations.map((combination) => {
     let result = query

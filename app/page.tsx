@@ -1,7 +1,9 @@
 import DomainGenerator from "../domain-generator"
 import Link from "next/link"
 import { Suspense } from "react"
+import { Github } from "lucide-react"
 import { MODEL_DISPLAY_NAME } from "@/lib/generate-options"
+import { GITHUB_URL } from "@/lib/links"
 
 export default function Page() {
   return (
@@ -39,12 +41,29 @@ export default function Page() {
             Legal
           </Link>
           <span className="text-sm text-gray-400">•</span>
-          <Link 
-            href="/privacy" 
+          <Link
+            href="/privacy"
             className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
             Privacy
           </Link>
+          <span className="text-sm text-gray-400">•</span>
+          <Link
+            href="/deploy"
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Self-host
+          </Link>
+          <span className="text-sm text-gray-400">•</span>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <Github className="w-3.5 h-3.5" />
+            GitHub
+          </a>
         </div>
       </footer>
     </div>

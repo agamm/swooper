@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronRight, Github } from "lucide-react"
 import Link from "next/link"
+import { GITHUB_URL, OPENROUTER_KEYS_URL, VERCEL_DEPLOY_URL } from "@/lib/links"
 
 interface FAQItem {
   question: string
@@ -62,6 +63,35 @@ const faqItems: FAQItem[] = [
       <div className="space-y-2">
         <p>No, we don&apos;t register domains directly. We&apos;re a search and discovery tool that helps you find available domains.</p>
         <p>Once you find a domain you like, you can register it through any domain registrar of your choice. We provide affiliate links to popular registrars if you&apos;d like to support us.</p>
+      </div>
+    )
+  },
+  {
+    question: "Can I run my own copy?",
+    answer: (
+      <div className="space-y-3">
+        <p>Yes — Appealing.ai is open source. You can deploy your own instance and bring your own OpenRouter key, so you only pay for your own usage.</p>
+        <ol className="list-decimal list-inside space-y-1 text-sm">
+          <li>
+            Grab a free key at{" "}
+            <a href={OPENROUTER_KEYS_URL} target="_blank" rel="noopener noreferrer" className="text-purple-600 underline underline-offset-2 hover:text-purple-800">
+              openrouter.ai/keys
+            </a>
+            .
+          </li>
+          <li>Deploy to Vercel and paste your key when prompted.</li>
+          <li>That&apos;s it — your instance, your credits.</li>
+        </ol>
+        <div className="flex flex-wrap items-center gap-4 pt-1">
+          <a href={VERCEL_DEPLOY_URL} target="_blank" rel="noopener noreferrer" aria-label="Deploy with Vercel">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://vercel.com/button" alt="Deploy with Vercel" height={32} className="h-8" />
+          </a>
+          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+            <Github className="w-4 h-4" />
+            Source on GitHub
+          </a>
+        </div>
       </div>
     )
   }
@@ -146,12 +176,22 @@ export default function FAQPage() {
               Legal
             </Link>
             <span className="text-sm text-gray-400">•</span>
-            <Link 
-              href="/privacy" 
+            <Link
+              href="/privacy"
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
               Privacy
             </Link>
+            <span className="text-sm text-gray-400">•</span>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <Github className="w-3.5 h-3.5" />
+              GitHub
+            </a>
           </div>
         </div>
       </footer>

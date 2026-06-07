@@ -6,8 +6,25 @@ const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
 })
 
-export const DEFAULT_MODEL = 'google/gemini-3-flash-preview'
-export const MODEL_DISPLAY_NAME = 'Gemini 3.0 Flash'
+// Model is configurable so you can bring your own OpenRouter model.
+// Any model that supports structured outputs works (see https://openrouter.ai/models).
+// Cheaper alternative: google/gemini-3.1-flash-lite
+export const DEFAULT_MODEL = process.env.OPENROUTER_MODEL?.trim() || 'google/gemini-3.5-flash'
+
+// Turn "google/gemini-3.5-flash" into "Gemini 3.5 Flash" for the UI byline.
+function prettifyModelName(id: string): string {
+  const slug = id.split('/').pop() ?? id
+  return slug
+    .split('-')
+    .map((part) => (/^\d/.test(part) ? part : part.charAt(0).toUpperCase() + part.slice(1)))
+    .join(' ')
+}
+
+export const MODEL_DISPLAY_NAME = prettifyModelName(DEFAULT_MODEL)
+
+// Newer flash models may spend tokens on internal reasoning before emitting the
+// JSON object, so give the structured-output call enough headroom to finish.
+const MAX_OUTPUT_TOKENS = 2048
 
 export async function generateOptionsForPattern(pattern: string): Promise<string[]> {
   // Handle simple slash patterns first - strictly word/word/word format
@@ -40,7 +57,7 @@ Rules for generation:
 10. DEFAULTS: At least 5 options, max 50 unless constrained`,
       prompt: `Generate domain name options for this pattern: ${pattern}\n\nThink about what makes a good domain name: brevity, memorability, brandability, and ease of spelling.`,
       temperature: 0.8,
-      maxTokens: 256,
+      maxTokens: MAX_OUTPUT_TOKENS,
       schema: z.object({
         options: z.array(z.string()).min(1),
       }),
@@ -83,7 +100,7 @@ Rules for generation:
 5. TLDs: Return without dot (e.g., "com", "io", not ".com", ".io")
 6. SPACING: No spaces or multi-word phrases - only single words
 7. DIVERSITY: Generate alternatives with different styles/themes from excluded options
-8. CONSTRAINT: Generate at most ${Math.min(20, excludedOptions.length)} new options`,
+8. CONSTRAINT: Generate at most ${Math.max(10, Math.min(20, excludedOptions.length))} new options`,
       prompt: `Generate completely NEW and different domain name options for: ${pattern}
 
 These options have ALREADY been used and MUST NOT be repeated:
@@ -91,7 +108,7 @@ ${excludedOptions.join(', ')}
 
 Generate fresh, creative alternatives that are distinctly different from the list above in style and meaning.`,
       temperature: 0.95, // Higher temperature for more creativity
-      maxTokens: 256,
+      maxTokens: MAX_OUTPUT_TOKENS,
       schema: z.object({
         options: z.array(z.string()).min(1),
       }),

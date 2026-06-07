@@ -1,47 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Appealing.ai
 
-## Getting Started
+**An AI domain finder where you describe the *shape* of the name with patterns, and it only shows you domains that are actually available.**
 
-### Environment Setup
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagamm%2Fappealing.ai&env=OPENROUTER_API_KEY,DOMAINR_RAPIDAPI_KEY,NEXT_PUBLIC_POSTHOG_KEY&envDescription=API%20keys%20for%20AI%20suggestions%20and%20domain%20availability%20checks&envLink=https%3A%2F%2Fgithub.com%2Fagamm%2Fappealing.ai%2Fblob%2Fmain%2F.env.example)
 
-1. Add your Domainr API credentials to `.env`:
-   ```bash
-   DOMAINR_RAPIDAPI_KEY=your_rapidapi_key_here
-   ```
-   
-   Get your API key from [RapidAPI Domainr](https://rapidapi.com/domainr/api/domainr).
+## The idea
 
-### Running the Development Server
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+fire(animals).com   →   firedog.com   firetiger.com   firewolf.com
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `( )` — the AI fills it in (e.g. `(animals)`, `(two cybersecurity terms)`).
+- `/` — exact options, no AI (e.g. `(com/io)` → both `.com` and `.io`).
+- Everything else is literal. Combine up to 4 patterns per query.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API keys
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Key | Required? | Get it |
+| --- | --- | --- |
+| `OPENROUTER_API_KEY` | **Required** for AI suggestions (without it, only `/`-style literal patterns work) | https://openrouter.ai/keys |
+| `DOMAINR_RAPIDAPI_KEY` | Optional — improves availability accuracy; RDAP+WHOIS cover most TLDs without it | https://rapidapi.com/domainr/api/domainr |
+| `NEXT_PUBLIC_POSTHOG_KEY` | Optional — analytics | https://posthog.com |
 
-## Learn More
+Optional: set `OPENROUTER_MODEL` to override the model (default `google/gemini-3.5-flash`, cheaper `google/gemini-3.1-flash-lite`).
 
-To learn more about Next.js, take a look at the following resources:
+## Run locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+cp .env.example .env.local   # add your OpenRouter key
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open http://localhost:3000.
 
-## Deploy on Vercel
+## Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Next.js + Vercel AI SDK + OpenRouter.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+[MIT](LICENSE) © Agam More
