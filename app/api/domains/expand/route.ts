@@ -3,12 +3,20 @@ import { z } from 'zod'
 import validator from 'validator'
 import { extractPatterns, generatePermutations } from '@/lib/patterns'
 import { generateOptionsForPattern } from '@/lib/generate-options'
+import { LANDING_ONLY } from '@/lib/config'
 
 const requestSchema = z.object({
   query: z.string().min(1)
 })
 
 export async function POST(request: NextRequest) {
+  if (LANDING_ONLY) {
+    return NextResponse.json(
+      { error: 'The hosted demo is disabled. Deploy your own copy: https://github.com/agamm/swooper', domains: [], query: '', options: {} },
+      { status: 403 }
+    )
+  }
+
   try {
     const body = await request.json()
     const { query } = requestSchema.parse(body)
