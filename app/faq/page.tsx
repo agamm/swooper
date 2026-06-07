@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, ChevronRight, Github } from "lucide-react"
+import { ChevronDown, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { GITHUB_URL, OPENROUTER_KEYS_URL, VERCEL_DEPLOY_URL } from "@/lib/links"
+import { GitHubIcon } from "@/components/github-icon"
 
 interface FAQItem {
   question: string
@@ -11,16 +12,6 @@ interface FAQItem {
 }
 
 const faqItems: FAQItem[] = [
-  {
-    question: "How does Appealing.ai make money?",
-    answer: (
-      <div className="space-y-2">
-        <p>We make money through affiliate links when you purchase domains through our partner registrars.</p>
-        <p>We&apos;d love if you used our links to support the site, but we completely understand if you have your own preferred domain providers!</p>
-        <p className="font-semibold">We do NOT front-run domains. Your searches are private and we never register domains that users search for.</p>
-      </div>
-    )
-  },
   {
     question: "How do I use the domain search?",
     answer: (
@@ -58,19 +49,10 @@ const faqItems: FAQItem[] = [
     )
   },
   {
-    question: "Do you register domains directly?",
-    answer: (
-      <div className="space-y-2">
-        <p>No, we don&apos;t register domains directly. We&apos;re a search and discovery tool that helps you find available domains.</p>
-        <p>Once you find a domain you like, you can register it through any domain registrar of your choice. We provide affiliate links to popular registrars if you&apos;d like to support us.</p>
-      </div>
-    )
-  },
-  {
     question: "Can I run my own copy?",
     answer: (
       <div className="space-y-3">
-        <p>Yes — Appealing.ai is open source. You can deploy your own instance and bring your own OpenRouter key, so you only pay for your own usage.</p>
+        <p>Yes — Swooper is open source. You can deploy your own instance and bring your own OpenRouter key, so you only pay for your own usage.</p>
         <ol className="list-decimal list-inside space-y-1 text-sm">
           <li>
             Grab a free key at{" "}
@@ -88,7 +70,7 @@ const faqItems: FAQItem[] = [
             <img src="https://vercel.com/button" alt="Deploy with Vercel" height={32} className="h-8" />
           </a>
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-            <Github className="w-4 h-4" />
+            <GitHubIcon className="w-4 h-4" />
             Source on GitHub
           </a>
         </div>
@@ -139,12 +121,12 @@ export default function FAQPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <Link href="/" className="text-2xl font-extralight text-gray-900 hover:text-gray-700 transition-colors">
-              Appealing.ai
+              Swooper
             </Link>
           </div>
           
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Frequently Asked Questions</h1>
-          <p className="text-gray-600 mb-8">Everything you need to know about using Appealing.ai</p>
+          <p className="text-gray-600 mb-8">Everything you need to know about using Swooper</p>
           
           <div className="space-y-3">
             {faqItems.map((item, index) => (
@@ -162,25 +144,18 @@ export default function FAQPage() {
       <footer className="px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-4 justify-center">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
               Home
             </Link>
             <span className="text-sm text-gray-400">•</span>
-            <Link 
-              href="/legal" 
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              Legal
-            </Link>
-            <span className="text-sm text-gray-400">•</span>
             <Link
-              href="/privacy"
+              href="/deploy"
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
-              Privacy
+              Self-host
             </Link>
             <span className="text-sm text-gray-400">•</span>
             <a
@@ -189,7 +164,7 @@ export default function FAQPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <Github className="w-3.5 h-3.5" />
+              <GitHubIcon className="w-3.5 h-3.5" />
               GitHub
             </a>
           </div>

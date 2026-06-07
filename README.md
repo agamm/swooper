@@ -1,8 +1,8 @@
-# Appealing.ai
+# Swooper
 
 **An AI domain finder where you describe the *shape* of the name with patterns, and it only shows you domains that are actually available.**
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagamm%2Fappealing.ai&env=OPENROUTER_API_KEY,DOMAINR_RAPIDAPI_KEY,NEXT_PUBLIC_POSTHOG_KEY&envDescription=API%20keys%20for%20AI%20suggestions%20and%20domain%20availability%20checks&envLink=https%3A%2F%2Fgithub.com%2Fagamm%2Fappealing.ai%2Fblob%2Fmain%2F.env.example)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagamm%2Fswooper&env=OPENROUTER_API_KEY,DOMAINR_RAPIDAPI_KEY&envDescription=API%20keys%20for%20AI%20suggestions%20and%20domain%20availability%20checks&envLink=https%3A%2F%2Fgithub.com%2Fagamm%2Fswooper%2Fblob%2Fmain%2F.env.example)
 
 ## The idea
 
@@ -20,7 +20,6 @@ fire(animals).com   →   firedog.com   firetiger.com   firewolf.com
 | --- | --- | --- |
 | `OPENROUTER_API_KEY` | **Required** for AI suggestions (without it, only `/`-style literal patterns work) | https://openrouter.ai/keys |
 | `DOMAINR_RAPIDAPI_KEY` | Optional — improves availability accuracy; RDAP+WHOIS cover most TLDs without it | https://rapidapi.com/domainr/api/domainr |
-| `NEXT_PUBLIC_POSTHOG_KEY` | Optional — analytics | https://posthog.com |
 
 Optional: set `OPENROUTER_MODEL` to override the model (default `google/gemini-3.5-flash`, cheaper `google/gemini-3.1-flash-lite`).
 

@@ -7,7 +7,7 @@ import { generateOptionsForPatternWithExclusions } from '@/lib/generate-options'
 const requestSchema = z.object({
   query: z.string().min(1),
   generatedDomains: z.array(z.string()), // All previously generated domains to avoid duplicates
-  options: z.record(z.array(z.string())) // Options by index: {"0": ["opt1", "opt2"], "1": ["opt3", "opt4"]}
+  options: z.record(z.string(), z.array(z.string())) // Options by index: {"0": ["opt1", "opt2"], "1": ["opt3", "opt4"]}
 })
 
 export async function POST(request: NextRequest) {

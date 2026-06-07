@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Appealing.ai - Domain Name Generator",
+  title: "Swooper - Domain Name Generator",
   description: "Find the perfect domain name with AI-powered pattern generation",
   icons: {
     icon: '/icon.svg',

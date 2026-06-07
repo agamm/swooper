@@ -57,7 +57,7 @@ Rules for generation:
 10. DEFAULTS: At least 5 options, max 50 unless constrained`,
       prompt: `Generate domain name options for this pattern: ${pattern}\n\nThink about what makes a good domain name: brevity, memorability, brandability, and ease of spelling.`,
       temperature: 0.8,
-      maxTokens: MAX_OUTPUT_TOKENS,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       schema: z.object({
         options: z.array(z.string()).min(1),
       }),
@@ -108,7 +108,7 @@ ${excludedOptions.join(', ')}
 
 Generate fresh, creative alternatives that are distinctly different from the list above in style and meaning.`,
       temperature: 0.95, // Higher temperature for more creativity
-      maxTokens: MAX_OUTPUT_TOKENS,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       schema: z.object({
         options: z.array(z.string()).min(1),
       }),

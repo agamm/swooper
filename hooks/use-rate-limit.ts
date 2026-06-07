@@ -8,7 +8,7 @@ interface RateLimitData {
   userId: string
 }
 
-const STORAGE_KEY = 'appealing-rate-limits'
+const STORAGE_KEY = 'swooper-rate-limits'
 const DAY_IN_MS = 24 * 60 * 60 * 1000
 
 function generateUserId(): string {

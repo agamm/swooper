@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import validator from 'validator'
 import { extractPatterns, generatePermutations } from '@/lib/patterns'
-import { captureEvent } from '@/lib/posthog-server'
 import { generateOptionsForPattern } from '@/lib/generate-options'
 
 const requestSchema = z.object({
@@ -55,20 +54,8 @@ export async function POST(request: NextRequest) {
       .map((domain) => domain.toLowerCase())
       .filter((domain) => validator.isFQDN(domain, { require_tld: true }))
       .filter((domain, index, arr) => arr.indexOf(domain) === index)
-    
-    // Log successful generation
-    await captureEvent('domain_expansion_success', {
-      query,
-      domains_generated: validDomains.length,
-      pattern_count: patterns.length,
-      options_per_pattern: Object.entries(options).map(([index, opts]) => ({
-        pattern_index: index,
-        pattern: patterns[parseInt(index)].pattern,
-        options_count: opts.length
-      }))
-    })
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       domains: validDomains,
       query,
       options
@@ -76,13 +63,6 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('Error expanding domains:', error)
-    
-    // Log the error
-    await captureEvent('domain_expansion_error', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    })
-    
     return NextResponse.json(
       { error: 'Failed to expand domains' },
       { status: 500 }

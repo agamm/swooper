@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { Github } from "lucide-react"
 import { GITHUB_URL, OPENROUTER_KEYS_URL, VERCEL_DEPLOY_URL } from "@/lib/links"
+import { GitHubIcon } from "@/components/github-icon"
 
 export default function DeployPage() {
   return (
@@ -9,15 +9,15 @@ export default function DeployPage() {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <Link href="/" className="text-2xl font-extralight text-gray-900 hover:text-gray-700 transition-colors">
-              Appealing.ai
+              Swooper
             </Link>
           </div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Run your own copy</h1>
-          <p className="text-gray-600 mb-8">Self-host Appealing.ai with your own keys.</p>
+          <p className="text-gray-600 mb-8">Self-host Swooper with your own keys.</p>
 
           <p className="text-sm text-gray-500 font-light mt-2">
-            Appealing.ai is open source. Deploy your own instance with your own{" "}
+            Swooper is open source. Deploy your own instance with your own{" "}
             <a href={OPENROUTER_KEYS_URL} target="_blank" rel="noopener noreferrer" className="text-gray-700 underline underline-offset-2 hover:text-gray-900 transition-colors">OpenRouter</a>{" "}
             key — you only pay for your own usage.
           </p>
@@ -32,7 +32,7 @@ export default function DeployPage() {
               <img src="https://vercel.com/button" alt="Deploy with Vercel" height={32} className="h-8" />
             </a>
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-              <Github className="w-4 h-4" /> View on GitHub
+              <GitHubIcon className="w-4 h-4" /> View on GitHub
             </a>
           </div>
         </div>
@@ -55,27 +55,13 @@ export default function DeployPage() {
               FAQ
             </Link>
             <span className="text-sm text-gray-400">•</span>
-            <Link
-              href="/legal"
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              Legal
-            </Link>
-            <span className="text-sm text-gray-400">•</span>
-            <Link
-              href="/privacy"
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              Privacy
-            </Link>
-            <span className="text-sm text-gray-400">•</span>
             <a
               href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <Github className="w-3.5 h-3.5" />
+              <GitHubIcon className="w-3.5 h-3.5" />
               GitHub
             </a>
           </div>

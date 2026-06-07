@@ -1,9 +1,9 @@
 import DomainGenerator from "../domain-generator"
 import Link from "next/link"
 import { Suspense } from "react"
-import { Github } from "lucide-react"
 import { MODEL_DISPLAY_NAME } from "@/lib/generate-options"
 import { GITHUB_URL } from "@/lib/links"
+import { GitHubIcon } from "@/components/github-icon"
 
 export default function Page() {
   return (
@@ -11,11 +11,8 @@ export default function Page() {
       <main className="flex-grow flex flex-col p-8 sm:p-20">
         <div className="flex flex-col gap-8 items-center pt-20">
           <Link href="/" className="text-5xl font-extralight tracking-tight text-gray-900 hover:text-gray-700 transition-colors cursor-pointer">
-            <h1>Appealing.ai</h1>
+            <h1>Swooper</h1>
           </Link>
-          <p className="text-gray-400 text-center text-sm font-light">
-            {MODEL_DISPLAY_NAME}
-          </p>
           <p className="text-gray-500 text-center max-w-md font-light text-lg">
             Ready to find a really good domain name?
           </p>
@@ -25,27 +22,13 @@ export default function Page() {
         </div>
       </main>
       
-      <footer className="px-4 py-8">
+      <footer className="px-4 py-8 flex flex-col items-center gap-3">
         <div className="flex gap-4 justify-center">
-          <Link 
-            href="/faq" 
+          <Link
+            href="/faq"
             className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
             FAQ
-          </Link>
-          <span className="text-sm text-gray-400">•</span>
-          <Link 
-            href="/legal" 
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Legal
-          </Link>
-          <span className="text-sm text-gray-400">•</span>
-          <Link
-            href="/privacy"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Privacy
           </Link>
           <span className="text-sm text-gray-400">•</span>
           <Link
@@ -61,10 +44,11 @@ export default function Page() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <Github className="w-3.5 h-3.5" />
+            <GitHubIcon className="w-3.5 h-3.5" />
             GitHub
           </a>
         </div>
+        <p className="text-xs text-gray-400 font-light">{MODEL_DISPLAY_NAME}</p>
       </footer>
     </div>
   )
