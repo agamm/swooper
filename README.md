@@ -14,6 +14,22 @@ fire(animals).com   →   firedog.com   firetiger.com   firewolf.com
 - `/` — exact options, no AI (e.g. `(com/io)` → both `.com` and `.io`).
 - Everything else is literal. Combine up to 4 patterns per query.
 
+Naming a real-world category gives you real members of it; describing a *style*
+(`(brandable)`, `(two cybersecurity terms)`) gets you coined words instead.
+
+## Finding a name in the results
+
+- **Filter** to just the available names, or **sort** them best-first (short,
+  clean, easy to say).
+- **AI pick** — a toggle that hands the available names to a cheaper model and
+  returns its top five with a one-line reason each.
+- **More like this** — the wand on any available row reruns the search seeded
+  with that name.
+
+Availability is reported as available, taken, or **unknown**. Unknown means the
+registry did not give a straight answer; it is never silently folded into
+"taken", so a free name can't disappear from the list.
+
 ## API keys
 
 | Key | Required? | Get it |
@@ -21,7 +37,10 @@ fire(animals).com   →   firedog.com   firetiger.com   firewolf.com
 | `OPENROUTER_API_KEY` | **Required** for AI suggestions (without it, only `/`-style literal patterns work) | https://openrouter.ai/keys |
 | `DOMAINR_RAPIDAPI_KEY` | Optional — improves availability accuracy; RDAP+WHOIS cover most TLDs without it | https://rapidapi.com/domainr/api/domainr |
 
-Optional: set `OPENROUTER_MODEL` to override the model (default `google/gemini-3.5-flash`, cheaper `google/gemini-3.1-flash-lite`).
+Optional: `OPENROUTER_MODEL` overrides the generation model (default
+`anthropic/claude-sonnet-5`, cheaper `google/gemini-3.5-flash`), and
+`OPENROUTER_RANKER_MODEL` overrides the model behind the AI pick panel
+(default `google/gemini-3.1-flash-lite`).
 
 ## Run locally
 

@@ -2,6 +2,8 @@ import DomainGenerator from "../domain-generator"
 import Link from "next/link"
 import { Suspense } from "react"
 import { MODEL_DISPLAY_NAME } from "@/lib/generate-options"
+import { RANKER_MODEL } from "@/lib/rank-domains"
+import { prettifyModelName } from "@/lib/model-name"
 import { GITHUB_URL } from "@/lib/links"
 import { GitHubIcon } from "@/components/github-icon"
 import { RunYourOwn } from "@/components/run-your-own"
@@ -57,8 +59,8 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
-      <main className="flex-grow flex flex-col p-8 sm:p-20">
-        <div className="flex flex-col gap-8 items-center pt-20">
+      <main className="flex-grow flex flex-col p-8 sm:px-12 sm:py-20">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 items-center pt-12 sm:pt-20">
           <Link href="/" className="text-5xl font-extralight tracking-tight text-gray-900 hover:text-gray-700 transition-colors cursor-pointer">
             <h1>Swooper</h1>
           </Link>
@@ -66,7 +68,7 @@ export default function Page() {
             Ready to find a really good domain name?
           </p>
           <Suspense fallback={<div className="animate-pulse h-12 w-96 bg-gray-100 rounded-md"></div>}>
-            <DomainGenerator />
+            <DomainGenerator rankerModelName={prettifyModelName(RANKER_MODEL)} />
           </Suspense>
         </div>
       </main>

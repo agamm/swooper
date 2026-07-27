@@ -44,22 +44,23 @@ export async function POST(request: NextRequest) {
     const combinedOptions: Record<string, string[]> = {}
     let hasNewOptions = false
     
+    // Patterns are independent, so ask for all the fresh options concurrently.
+    const generated = await Promise.all(
+      patterns.map((pattern, i) =>
+        generateOptionsForPatternWithExclusions(pattern.pattern, previousOptions[i.toString()] || []),
+      ),
+    )
+
     for (let i = 0; i < patterns.length; i++) {
       const index = i.toString()
       const previousOpts = previousOptions[index] || []
       const allUsedOptions = new Set(previousOpts.map(opt => opt.toLowerCase()))
-      
-      // Generate new options excluding previously used ones
-      const freshOptions = await generateOptionsForPatternWithExclusions(
-        patterns[i].pattern, 
-        previousOpts // Pass only the options we already have for this pattern
-      )
-      
+
       // Filter to only truly new options
-      const uniqueFreshOptions = freshOptions.filter(opt => 
+      const uniqueFreshOptions = generated[i].filter(opt =>
         !allUsedOptions.has(opt.toLowerCase())
       )
-      
+
       if (uniqueFreshOptions.length > 0) {
         // Store only the new options to return
         newOptions[index] = uniqueFreshOptions

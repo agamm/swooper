@@ -26,7 +26,7 @@ describe('TLD Generation Regression Tests', () => {
       
       // None of the options should start with a dot
       options.forEach((option, index) => {
-        expect(option).not.toMatch(/^\./, `Option ${index} "${option}" should not start with a dot`)
+        expect(option, `Option ${index} "${option}" should not start with a dot`).not.toMatch(/^\./)
       })
       
       // Should contain common TLDs without dots
@@ -47,7 +47,7 @@ describe('TLD Generation Regression Tests', () => {
       
       // None should start with dots
       options.forEach((option, index) => {
-        expect(option).not.toMatch(/^\./, `Option ${index} "${option}" should not start with a dot`)
+        expect(option, `Option ${index} "${option}" should not start with a dot`).not.toMatch(/^\./)
       })
     })
 
@@ -61,7 +61,7 @@ describe('TLD Generation Regression Tests', () => {
       
       // None should start with dots
       options.forEach((option, index) => {
-        expect(option).not.toMatch(/^\./, `Option ${index} "${option}" should not start with a dot`)
+        expect(option, `Option ${index} "${option}" should not start with a dot`).not.toMatch(/^\./)
       })
     })
   })
@@ -98,8 +98,8 @@ describe('TLD Generation Regression Tests', () => {
       // All domains should be valid FQDNs
       validDomains.forEach((domain, index) => {
         expect(validator.isFQDN(domain, { require_tld: true })).toBe(true)
-        expect(domain).toMatch(/^crexai\.[a-z]+$/, `Domain ${index} "${domain}" should match pattern`)
-        expect(domain).not.toMatch(/\.\./, `Domain ${index} "${domain}" should not have double dots`)
+        expect(domain, `Domain ${index} "${domain}" should match pattern`).toMatch(/^crexai\.[a-z]+$/)
+        expect(domain, `Domain ${index} "${domain}" should not have double dots`).not.toMatch(/\.\./)
       })
       
       // Should contain some common domains

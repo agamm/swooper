@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { isDomainAvailable } from '@/lib/whois'
+import { checkDomainStatus } from '@/lib/whois'
 
 const requestSchema = z.object({
   domain: z.string().min(1)
@@ -10,14 +10,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { domain } = requestSchema.parse(body)
-    
-    const isAvailable = await isDomainAvailable(domain)
-    
-    return NextResponse.json({ 
+
+    const status = await checkDomainStatus(domain)
+
+    return NextResponse.json({
       domain,
-      isAvailable 
+      status,
+      // Kept for compatibility: only a confirmed-free name is `true`.
+      isAvailable: status === 'available'
     })
-    
+
   } catch (error) {
     console.error('Error checking domain:', error)
     return NextResponse.json(

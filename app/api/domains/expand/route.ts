@@ -42,16 +42,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ domains: [query], query, options: {} })
     }
     
-    // Generate options for each pattern by index
+    // One LLM call per pattern, all in flight at once — they don't depend on
+    // each other, and serialising them made a 4-pattern query 4x slower.
+    const generated = await Promise.all(patterns.map((p) => generateOptionsForPattern(p.pattern)))
+
     const options: Record<string, string[]> = {}
-    
-    for (let i = 0; i < patterns.length; i++) {
-      const patternOptions = await generateOptionsForPattern(patterns[i].pattern)
+    generated.forEach((patternOptions, i) => {
       if (patternOptions.length > 0) {
         options[i.toString()] = patternOptions
       }
-    }
-    
+    })
+
     if (Object.keys(options).length === 0) {
       return NextResponse.json({ domains: [], query, options: {} })
     }

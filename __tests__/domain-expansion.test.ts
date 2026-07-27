@@ -1,17 +1,11 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { generateOptionsForPattern } from '../lib/generate-options'
 import { extractPatterns, generatePermutations } from '../lib/patterns'
-import { config } from 'dotenv'
-import path from 'path'
 
-// Load environment variables before all tests
+// vitest.setup.ts loads .env.local / .env before any test runs.
 beforeAll(() => {
-  // Load from .env in the root directory
-  config({ path: path.resolve(process.cwd(), '.env') })
-  
-  // Verify API key is loaded
   if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error('OPENROUTER_API_KEY is not set. Please check your .env file')
+    throw new Error('OPENROUTER_API_KEY is not set. Add it to .env.local')
   }
 })
 
