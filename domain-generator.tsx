@@ -11,7 +11,7 @@ import { DescribeMode } from "@/components/describe-mode"
 import { ExamplePatterns } from "@/components/example-patterns"
 import { DomainResult } from "@/components/domain-result"
 import { AiPickPanel } from "@/components/ai-pick-panel"
-import { ResultControls, type ResultFilter, type ResultSort } from "@/components/result-controls"
+import { ResultControls } from "@/components/result-controls"
 import { useRateLimit } from "@/hooks/use-rate-limit"
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer"
 import { useExpandDomains } from "@/hooks/use-expand-domains"
@@ -77,8 +77,7 @@ function DomainList({
   const [allGeneratedDomains, setAllGeneratedDomains] = useState<Set<string>>(new Set())
   const [currentOptions, setCurrentOptions] = useState<Record<string, string[]>>({})
   const [hasSearched, setHasSearched] = useState(false)
-  const [filter, setFilter] = useState<ResultFilter>("all")
-  const [sort, setSort] = useState<ResultSort>("original")
+  const [availableOnly, setAvailableOnly] = useState(false)
   const [aiPickEnabled, setAiPickEnabled] = useState(false)
   const domainRefs = useRef<Map<string, HTMLDivElement>>(new Map())
   const processingDomainsRef = useRef<Set<string>>(new Set())
@@ -207,7 +206,7 @@ function DomainList({
       setTryMoreLimitReached(false)
       setVisibleCount(100)
       setHasSearched(true)
-      setFilter("all")
+      setAvailableOnly(false)
 
       // Generate a new search ID
       const searchId = `search-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
@@ -242,7 +241,7 @@ function DomainList({
       setCurrentOptions({})
       setVisibleCount(100)
       setHasSearched(false)
-      setFilter("all")
+      setAvailableOnly(false)
     }
   }, [searchTerm, resetChecks])
 
@@ -257,15 +256,13 @@ function DomainList({
     }
   }, [currentSearchId, domains.length, checkTryMoreLimit])
 
-  const orderedDomains = useMemo(
-    () => (sort === "best" ? sortEntries(domains, statuses) : domains),
-    [domains, statuses, sort],
-  )
-
-  const filteredDomains = useMemo(
-    () => (filter === "available" ? orderedDomains.filter((entry) => statuses[entry.domain] === "available") : orderedDomains),
-    [orderedDomains, filter, statuses],
-  )
+  // Filtering to the available names implies wanting the best of them first,
+  // and by then every row has resolved so the order no longer shifts underfoot.
+  // Unfiltered stays in generated order, which is stable while checks land.
+  const filteredDomains = useMemo(() => {
+    if (!availableOnly) return domains
+    return sortEntries(domains.filter((entry) => statuses[entry.domain] === "available"), statuses)
+  }, [domains, statuses, availableOnly])
 
   const visibleDomains = filteredDomains.slice(0, visibleCount)
 
@@ -321,7 +318,6 @@ function DomainList({
   }
 
   const hasMore = visibleCount < filteredDomains.length
-  const checkedCount = domains.filter((entry) => statuses[entry.domain] !== undefined).length
   const availableCount = availableDomains.length
 
   if (!searchTerm.trim() || !isValid) return null
@@ -366,18 +362,23 @@ function DomainList({
 
   // Batch dividers mark where "Try More" appended results, which only makes
   // sense while the list is still in generated order.
-  const showBatchDividers = sort === "original" && filter === "all"
+  const showBatchDividers = !availableOnly
+  // The panel only earns its column once it has a recommendation to show.
+  const showAiPanel = aiPickEnabled && (isRanking || Boolean(rankError) || ranked.length > 0)
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+    // Without the panel the list keeps the same centred column as the search
+    // box; rows stretched to full width read as sparse and hard to scan.
+    <div className={`grid gap-6 ${showAiPanel ? 'lg:grid-cols-[minmax(0,1fr)_16rem]' : 'mx-auto w-full max-w-2xl'}`}>
       <div className="space-y-4">
         <ResultControls
-          filter={filter}
-          onFilterChange={setFilter}
-          sort={sort}
-          onSortChange={setSort}
+          availableOnly={availableOnly}
+          onAvailableOnlyChange={setAvailableOnly}
+          aiPickEnabled={aiPickEnabled}
+          onAiPickChange={handleAiPickToggle}
           availableCount={availableCount}
           totalCount={domains.length}
+          isChecking={isChecking}
         />
 
         <div className="space-y-1">
@@ -409,7 +410,7 @@ function DomainList({
           })}
         </div>
 
-        {filter === "available" && availableCount === 0 && (
+        {availableOnly && availableCount === 0 && (
           <p className="py-4 text-center text-sm font-light text-gray-500">
             {isChecking ? "Still checking — no free names yet." : "None of these are available. Try More Suggestions below."}
           </p>
@@ -422,15 +423,6 @@ function DomainList({
             </Button>
           </div>
         )}
-
-        <div className="text-center text-sm text-gray-500 pt-2 font-light">
-          {availableCount} available out of {checkedCount} checked
-          {isChecking && (
-            <span className="ml-2">
-              <span className="inline-block animate-pulse">•</span> Still checking...
-            </span>
-          )}
-        </div>
 
         {/* Try More button */}
         {domains.length > 0 && extractPatterns(searchTerm).length > 0 && !isExpandingMore && !isChecking && !hasMore && !tryMoreLimitReached && (
@@ -465,16 +457,9 @@ function DomainList({
         )}
       </div>
 
-      <AiPickPanel
-        enabled={aiPickEnabled}
-        onToggle={handleAiPickToggle}
-        ranked={ranked}
-        isLoading={isRanking}
-        error={rankError}
-        availableCount={availableCount}
-        isChecking={isChecking}
-        modelName={rankerModelName}
-      />
+      {showAiPanel && (
+        <AiPickPanel ranked={ranked} isLoading={isRanking} error={rankError} modelName={rankerModelName} />
+      )}
     </div>
   )
 }
