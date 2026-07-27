@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Loader2, Sparkles } from "lucide-react"
 import { extractPatterns } from "@/lib/patterns"
 import { brandabilityScore, type DomainStatus } from "@/lib/domain-status"
+import { validateDomainQuery } from "@/lib/validate-query"
 import { HighlightedInput } from "@/components/highlighted-input"
+import { DescribeMode } from "@/components/describe-mode"
 import { ExamplePatterns } from "@/components/example-patterns"
 import { DomainResult } from "@/components/domain-result"
 import { AiPickPanel } from "@/components/ai-pick-panel"
@@ -16,6 +18,7 @@ import { useExpandDomains } from "@/hooks/use-expand-domains"
 import { useExpandMoreDomains } from "@/hooks/use-expand-more-domains"
 import { useDomainCheckQueue } from "@/hooks/use-domain-check-queue"
 import { useRankDomains } from "@/hooks/use-rank-domains"
+import { useSuggestPatterns } from "@/hooks/use-suggest-patterns"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useQueryState } from "nuqs"
 import { HowToSection } from "@/components/how-to-section"
@@ -28,57 +31,7 @@ interface DomainEntry {
 
 const AI_PICK_STORAGE_KEY = "swooper-ai-pick-enabled"
 
-function validateDomainQuery(query: string): { isValid: boolean; error: string | null } {
-  if (!query.trim()) {
-    return { isValid: true, error: null }
-  }
-
-  const bracePattern = /\(|\)/g
-  const matches = query.match(bracePattern) || []
-
-  let openCount = 0
-  for (const match of matches) {
-    if (match === "(") {
-      openCount++
-    } else if (match === ")") {
-      openCount--
-      if (openCount < 0) {
-        return { isValid: false, error: "Found closing ) without opening ( - did you forget to add an opening parenthesis?" }
-      }
-    }
-  }
-
-  if (openCount !== 0) {
-    return { isValid: false, error: "Unmatched parentheses - make sure each ( has a closing )" }
-  }
-
-  const emptyPatternMatch = query.match(/\(\s*\)/)
-  if (emptyPatternMatch) {
-    return { isValid: false, error: "Empty pattern () is not allowed - try to write something inside the parentheses. " }
-  }
-
-  const outsidePattern = query.replace(/\([^)]*\)/g, "PLACEHOLDER")
-  const invalidChars = outsidePattern.match(/[^a-zA-Z0-9.\-PLACEHOLDER]/g)
-
-  if (invalidChars) {
-    const firstInvalidChar = invalidChars[0]
-    return {
-      isValid: false,
-      error: `Invalid character '${firstInvalidChar}' outside parentheses. ${firstInvalidChar === '/' ? 'Did you mean to put it inside parentheses like (option1/option2)?' : 'Only letters, numbers, dots, and dashes allowed outside ( ).'}`,
-    }
-  }
-
-  // Check pattern count limit
-  const patternMatches = query.match(/\([^)]*\)/g) || []
-  if (patternMatches.length > 4) {
-    return {
-      isValid: false,
-      error: "Too many patterns. Maximum 4 patterns allowed per query.",
-    }
-  }
-
-  return { isValid: true, error: null }
-}
+type Mode = "pattern" | "describe"
 
 // "Best first" means the names worth reading first: confirmed-free ones, then
 // the ones we couldn't resolve, then the taken ones — each group by how well
@@ -536,6 +489,14 @@ export default function DomainGenerator({ rankerModelName }: { rankerModelName: 
     isValid: true,
     error: null,
   })
+  // Pattern is the default so a shared ?q= link opens straight into results.
+  const [mode, setMode] = useState<Mode>('pattern')
+  const [brief, setBrief] = useState('')
+  const [briefCollapsed, setBriefCollapsed] = useState(false)
+  // Whether Describe has run a search yet, which is what decides if results
+  // belong on screen. Editing the query afterwards must not hide them.
+  const [describeSearchStarted, setDescribeSearchStarted] = useState(false)
+  const { patterns: suggestions, isLoading: isSuggesting, error: suggestError, suggest } = useSuggestPatterns()
 
   const examplePatterns = [
     { label: "(two cybersecurity startup terms).ai", value: "(two cybersecurity startup terms).ai" },
@@ -558,30 +519,88 @@ export default function DomainGenerator({ rankerModelName }: { rankerModelName: 
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [validateAndSetSearchTerm])
 
+  // Picking a suggestion runs it in place: the brief and the other angles stay
+  // on screen so swapping between them costs one click and loses nothing.
+  const pickSuggestedPattern = useCallback((pattern: string) => {
+    validateAndSetSearchTerm(pattern)
+    setDescribeSearchStarted(true)
+    setBriefCollapsed(true)
+  }, [validateAndSetSearchTerm])
+
+  const handleSuggest = useCallback(() => {
+    setDescribeSearchStarted(false)
+    setBriefCollapsed(false)
+    suggest(brief)
+  }, [brief, suggest])
+
+  // Derived rather than stored: "more like this" or a hand edit moves the query
+  // off the suggestion, and the highlight should follow without extra wiring.
+  const activePattern = suggestions.some((s) => s.pattern === searchTerm) ? searchTerm : null
+
   return (
     <div className="w-full space-y-4">
-      <div className="mx-auto max-w-2xl space-y-4">
-        <HighlightedInput
-          value={searchTerm}
-          onChange={validateAndSetSearchTerm}
-          placeholder="Enter domain query: example.com or (get/use)app.(com/io)"
-          error={!!validation.error}
-        />
-
-        <ExamplePatterns
-          patterns={examplePatterns}
-          onSelect={validateAndSetSearchTerm}
-        />
-
-        {validation.error && <p className="text-sm text-red-500 font-light">{validation.error}</p>}
+      <div className="mx-auto flex max-w-2xl justify-center">
+        <div role="group" aria-label="Search mode" className="flex rounded-md border border-gray-200 p-0.5">
+          {([
+            { value: 'pattern', label: 'Pattern' },
+            { value: 'describe', label: 'Describe' },
+          ] as const).map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={mode === option.value}
+              onClick={() => setMode(option.value)}
+              className={`cursor-pointer rounded px-3 py-1 text-xs font-light transition-colors ${
+                mode === option.value ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <DomainList
-        searchTerm={searchTerm}
-        isValid={validation.isValid}
-        onSearch={searchSimilarTo}
-        rankerModelName={rankerModelName}
-      />
+      {mode === 'describe' ? (
+        <DescribeMode
+          brief={brief}
+          onBriefChange={setBrief}
+          onSubmit={handleSuggest}
+          patterns={suggestions}
+          isLoading={isSuggesting}
+          error={suggestError}
+          activePattern={activePattern}
+          onPickPattern={pickSuggestedPattern}
+          collapsed={briefCollapsed}
+          onToggleCollapsed={() => setBriefCollapsed((collapsed) => !collapsed)}
+        />
+      ) : (
+        <div className="mx-auto max-w-2xl space-y-4">
+          <HighlightedInput
+            value={searchTerm}
+            onChange={validateAndSetSearchTerm}
+            placeholder="Enter domain query: example.com or (get/use)app.(com/io)"
+            error={!!validation.error}
+          />
+
+          <ExamplePatterns
+            patterns={examplePatterns}
+            onSelect={validateAndSetSearchTerm}
+          />
+
+          {validation.error && <p className="text-sm text-red-500 font-light">{validation.error}</p>}
+        </div>
+      )}
+
+      {/* Results sit below whichever input produced them, so picking a
+          different angle in Describe swaps them without losing the list. */}
+      {(mode === 'pattern' || describeSearchStarted) && (
+        <DomainList
+          searchTerm={searchTerm}
+          isValid={validation.isValid}
+          onSearch={searchSimilarTo}
+          rankerModelName={rankerModelName}
+        />
+      )}
     </div>
   )
 }

@@ -1,11 +1,7 @@
 import { z } from 'zod'
 import { generateObject } from 'ai'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { zdrModel } from './openrouter'
 import { sortByBrandability } from './domain-status'
-
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-})
 
 // Ranking is a much easier job than inventing names, so it runs on a cheaper
 // model than generation by default. Override independently of OPENROUTER_MODEL.
@@ -34,7 +30,7 @@ export async function rankDomains(query: string, domains: string[]): Promise<Ran
 
   try {
     const { object } = await generateObject({
-      model: openrouter(RANKER_MODEL),
+      model: zdrModel(RANKER_MODEL),
       system: `You rank available domain names and explain your picks to a founder choosing one.
 
 Judge each candidate on:

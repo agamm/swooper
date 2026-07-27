@@ -17,6 +17,17 @@ fire(animals).com   →   firedog.com   firetiger.com   firewolf.com
 Naming a real-world category gives you real members of it; describing a *style*
 (`(brandable)`, `(two cybersecurity terms)`) gets you coined words instead.
 
+## Describe mode
+
+If you don't want to write a pattern, switch to **Describe** and write a
+paragraph about what you're building and how you want it to sound. You get five
+patterns back, each taking a different naming strategy — a literal category, a
+coined blend, a metaphor, an abstract brandable, a TLD pun — with a one-line
+rationale and sample expansions.
+
+Picking one runs it immediately and leaves your paragraph and the other four on
+screen, so switching between angles costs one click.
+
 ## Finding a name in the results
 
 - **Filter** to just the available names, or **sort** them best-first (short,
@@ -41,6 +52,18 @@ Optional: `OPENROUTER_MODEL` overrides the generation model (default
 `anthropic/claude-sonnet-5`, cheaper `google/gemini-3.5-flash`), and
 `OPENROUTER_RANKER_MODEL` overrides the model behind the AI pick panel
 (default `google/gemini-3.1-flash-lite`).
+
+## Prompt privacy
+
+Your prompts describe what you're building, often before it's announced. Every
+OpenRouter call is pinned to [Zero Data
+Retention](https://openrouter.ai/docs/features/zdr) routing (`zdr: true`) and
+refuses providers that collect data for training (`data_collection: "deny"`).
+OpenRouter applies both to failover too, so a fallback can't quietly land on a
+retaining provider.
+
+The trade-off: if you override a model with one that has no ZDR endpoint, the
+request fails rather than silently downgrading.
 
 ## Run locally
 

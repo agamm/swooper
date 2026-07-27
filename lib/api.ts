@@ -2,6 +2,7 @@
 
 import type { DomainStatus } from './domain-status'
 import type { RankedDomain } from './rank-domains'
+import type { PatternSuggestion } from './suggest-patterns'
 
 export interface ExpandResponse {
   domains: string[]
@@ -21,6 +22,11 @@ export interface ExpandMoreResponse extends ExpandResponse {
 
 export interface RankResponse {
   ranked: RankedDomain[]
+}
+
+export interface SuggestPatternsResponse {
+  patterns: PatternSuggestion[]
+  error?: string
 }
 
 // Expand domains API
@@ -71,6 +77,24 @@ export async function expandMoreDomains(params: {
   }
 
   return response.json()
+}
+
+// Turn a plain-language brief into Swooper patterns
+export async function suggestPatterns(brief: string, signal?: AbortSignal): Promise<SuggestPatternsResponse> {
+  const response = await fetch('/api/domains/suggest-patterns', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ brief }),
+    signal,
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data?.error || 'Failed to suggest patterns')
+  }
+
+  return data
 }
 
 // Rank available domains API

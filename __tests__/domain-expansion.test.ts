@@ -262,9 +262,14 @@ describe('Domain Expansion with Real AI', () => {
         expect(word).not.toContain('.')
         expect(word).toMatch(/^[a-z]+$/) // Only lowercase letters
         
-        // Should not start with common prefixes that indicate compound words
-        expect(word).not.toMatch(/^(get|try|use|set)[a-z]+/)
-        
+        // A get/try/use/set prefix hints at a compound, but it also matches
+        // ordinary words like "settle", "useful" and "trying", so it can only
+        // be a warning — same softer check as the "10 words" case above.
+        if (word.match(/^(get|try|use|set)[a-z]+/)) {
+          console.warn(`Found potential compound word: ${word}`)
+        }
+
+
         // Should be reasonable single word length
         expect(word.length).toBeGreaterThanOrEqual(2) // At least 2 characters (allows "is", "to", etc)
         expect(word.length).toBeLessThanOrEqual(15) // Reasonable word length

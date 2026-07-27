@@ -1,11 +1,7 @@
 import { z } from 'zod'
 import { generateObject } from 'ai'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { zdrModel } from './openrouter'
 import { prettifyModelName } from './model-name'
-
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-})
 
 // Model is configurable so you can bring your own OpenRouter model.
 // Any model that supports structured outputs works (see https://openrouter.ai/models).
@@ -35,7 +31,7 @@ Decide which kind of pattern you were given:
 3. LITERAL options separated by "/" — return exactly those options, unchanged.
 
 Additional rules:
-- WORD COUNTS: "N words" means N separate single words, not compounds. Only produce compounds when the pattern says "combinations", "compound", or similar.
+- WORD COUNTS: "N words" asks for exactly N options, each a single word — not one option containing N words. Only produce compounds when the pattern says "combinations", "compound", or similar.
 - SPACING: single tokens only. No spaces, no multi-word phrases.
 - CHARACTERS: lowercase letters only, plus digits or hyphens if the pattern explicitly asks. Nothing that is invalid in a domain label.
 - TLDs: return them bare, without the leading dot.
@@ -59,6 +55,12 @@ function parseSlashOptions(pattern: string): string[] | null {
     .filter((opt) => opt.length > 0)
 }
 
+// Slots are concatenated into one DNS label, which caps out at 63 characters.
+// With up to 4 slots per query, anything longer than this makes a domain that
+// is too long to type and too long to say. The prompt asks for short words;
+// this is the guarantee, since a model will occasionally ignore the ask.
+const MAX_OPTION_LENGTH = 15
+
 // The model occasionally returns a whole domain, a dotted TLD, or stray
 // punctuation. Normalise here so the permutation step only ever sees slot-sized
 // tokens that are legal inside a domain label.
@@ -68,6 +70,7 @@ function sanitizeOptions(options: string[]): string[] {
   return options
     .map((option) => option.trim().toLowerCase().replace(/^\.+/, '').replace(/\.+$/, ''))
     .filter((option) => option.length > 0 && !/\s/.test(option))
+    .filter((option) => option.length <= MAX_OPTION_LENGTH)
     .filter((option) => /^[a-z0-9-]+$/.test(option))
     .filter((option) => !option.startsWith('-') && !option.endsWith('-'))
     .filter((option) => (seen.has(option) ? false : seen.add(option)))
@@ -83,7 +86,7 @@ export async function generateOptionsForPattern(pattern: string): Promise<string
 
   try {
     const { object } = await generateObject({
-      model: openrouter(DEFAULT_MODEL),
+      model: zdrModel(DEFAULT_MODEL),
       system: BASE_RULES,
       prompt: `Fill this domain slot: ${pattern}
 
@@ -113,7 +116,7 @@ export async function generateOptionsForPatternWithExclusions(pattern: string, e
 
   try {
     const { object } = await generateObject({
-      model: openrouter(DEFAULT_MODEL),
+      model: zdrModel(DEFAULT_MODEL),
       system: `${BASE_RULES}
 
 This is a follow-up request. The user has already seen the excluded options listed in the prompt and wants different ones.
