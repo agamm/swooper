@@ -4,6 +4,8 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagamm%2Fswooper&env=OPENROUTER_API_KEY,DOMAINR_RAPIDAPI_KEY&envDescription=API%20keys%20for%20AI%20suggestions%20and%20domain%20availability%20checks&envLink=https%3A%2F%2Fgithub.com%2Fagamm%2Fswooper%2Fblob%2Fmain%2F.env.example)
 
+![Swooper searching fire(animals).com, filtering to the available names, and ranking them with AI](public/swooper-demo.gif)
+
 ## The idea
 
 ```
